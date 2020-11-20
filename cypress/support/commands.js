@@ -71,18 +71,19 @@ Cypress.Commands.add("Client", () => {
   cy.fixture('../fixtures/static_list.csv', 'base64')
     .then(binary => Cypress.Blob.base64StringToBlob)
     .then((file) => {
-      payload.append('name', 'liistt');
-      payload.append('file1', file);
-    }).then((body) => {
+      payload.set('name', 'liistt');
+      payload.set('file1', file);
+      console.log(payload.get('file1'))
+    }).then(() => {
       cy.request({
         method: "POST",
         url: "https://stag-core.uplandcxm.com/api/static_groups",
         headers: {
-          "Authorization": "Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJhY3RpdmVfY29tcGFueV9pZCI6IjUzOTVjYjlmLWRhMDEtNDhjZi05YThmLTU1NmQwMTE3NDUwNyIsImFjdGl2ZV9jb21wYW55X25hbWUiOiJSQ1MgQ29tcGFueSAyIiwiYXVkIjoiVU1NIiwiZXhwIjoxNjA1ODM3OTc2LCJpYXQiOjE2MDM0MTg3NzYsImlzcyI6IlVNTSIsImp0aSI6ImY5ZTg1YzAzLWE4MzQtNDljNy1hYjIzLWEyM2JkNmU0YjNmNSIsIm5iZiI6MTYwMzQxODc3NSwic3ViIjoiYzQyODMyZjktNDdmZC00NThhLWJiOTEtMmRlZjQ0OTExMmUzIiwidHlwIjoiYWNjZXNzIiwidXNlcl9jb21wYW55X2lkIjpudWxsLCJ1c2VyX3JvbGUiOiJzdXBlcl91c2VyIn0.07a4HB4wp2fAR1Wy7j77Z4JVnWCerYoBZBr9tLdVJ6aDZ4ZS3dy5o3qhtN6gdRFFWwyrcwTBJyVFCY6K_vtXDQ",
+          "Authorization": Cypress.env('token'),
           "Content-Type": "multipart/form-data"
         },
         body: {
-          body
+          payload
         }
       }).its("body");
     })
@@ -98,4 +99,23 @@ Cypress.Commands.add('form', (method, url, formData, done) => {
     done(xhr);
   };
   xhr.send(formData);
+})
+
+Cypress.Commands.add('form_me', (url) => {
+  const fileName = '../fixtures/static_list.csv'
+  const fileType = 'multipart/form-data'
+
+  // Get file from fixtures as binary
+  cy.fixture(fileName, 'binary').then((excelBin) => {
+    Cypress.Blob.binaryStringToBlob(excelBin, fileType).then((blob) => {
+      // Build up the form
+      const payload = new FormData();
+      payload.set('file1', blob, fileName); //adding a file to the form
+      payload.set('name', 'Ahmed'); //adding a plain input to the form
+
+      const xhr = new XMLHttpRequest();
+      xhr.open(url);
+      xhr.send(payload);
+    })
+  })
 })

@@ -34,7 +34,7 @@ describe('Create a new meta attribute and delete it', () => {
       })
   })
 
-  it.only('delete profile attribute meta from profile', () => {
+  it('delete profile attribute meta from company', () => {
     // check that company has custom attributes
     cy.request(
       {
@@ -53,7 +53,8 @@ describe('Create a new meta attribute and delete it', () => {
       })
       .then((response) => {
         expect(response.status).to.eq(200)
-        Cypress.env('number_of_attributes', response.body.total_records_count)
+        Cypress.env('number_of_attributes', response.body.pagination_meta.total_records_count)
+        console.log(Cypress.env('number_of_attributes'))
       })
 
     // delete custom attribute
@@ -61,7 +62,7 @@ describe('Create a new meta attribute and delete it', () => {
       {
         method: 'DELETE',
         url: 'https://stag-core.uplandcxm.com/api/profile_attribute_metas/'
-            + Cypress.env('attribute_meta_id'),
+          + Cypress.env('attribute_meta_id'),
 
         headers:
         {
@@ -96,10 +97,7 @@ describe('Create a new meta attribute and delete it', () => {
       })
       .then((response) => {
         expect(response.status).to.eq(200)
-        expect(response.body.pagination_meta).to.have.property('total_records_count',
-               (Cypress.env('number_of_attributes') - 1))
-        //expect(response.body.records[0].name).to.not.equal('nationality')
+        expect(response.body.pagination_meta.total_records_count).to.eq(Cypress.env('number_of_attributes') - 1)
       })
   })
-
 })
