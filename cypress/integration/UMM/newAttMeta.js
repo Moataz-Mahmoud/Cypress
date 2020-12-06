@@ -26,7 +26,6 @@ describe('Create a new meta attribute and delete it', () => {
             "type": Cypress.env('attribute_meta_type'),
             "description": ""
           }
-
         },
       }).then((response) => {
         Cypress.env('attribute_meta_id', response.body.id);
